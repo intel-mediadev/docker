@@ -24,6 +24,25 @@ RUN mkdir /opt/src && \
     rm cmake-3.8.2-Linux-x86_64.sh
 
 RUN cd /opt/src && \
+    curl -sSLO https://www.samba.org/ftp/ccache/ccache-3.2.8.tar.bz2 && \
+    tar xf ccache-3.2.8.tar.bz2 && \
+    cd ccache-3.2.8 && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install
+
+RUN mkdir -p /usr/lib/ccache && \
+    cd /usr/lib/ccache && \
+    ln -sf /usr/bin/ccache gcc && \
+    ln -sf /usr/bin/ccache g++ && \
+    ln -sf /usr/bin/ccache cc && \
+    ln -sf /usr/bin/ccache c++ && \
+    ln -sf /usr/bin/ccache clang && \
+    ln -sf /usr/bin/ccache clang++ && \
+    ln -sf /usr/bin/ccache clang-4.0 && \
+    ln -sf /usr/bin/ccache clang++-4.0
+
+RUN cd /opt/src && \
     curl -o libva.zip -sSL https://github.com/intel/libva/archive/master.zip && \
     unzip libva.zip && \
     cd libva-master && \
@@ -58,7 +77,6 @@ RUN cd /opt/src && \
     make install && \
     make check
 
-   
 RUN cd /opt/src && \
     curl -o MediaSDK.zip -sSL https://github.com/Intel-Media-SDK/MediaSDK/archive/master.zip && \
     unzip MediaSDK.zip && \
@@ -67,4 +85,7 @@ RUN cd /opt/src && \
     cmake .. && \
     make && \
     make install
+
+RUN export LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri && \
+    export LIBVA_DRIVER_NAME=iHD
 
