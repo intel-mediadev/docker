@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install -y \
     autoconf \
+    git \
     curl \
     libdrm-dev \
     libgl1-mesa-glx \
@@ -43,47 +44,40 @@ RUN mkdir -p /usr/lib/ccache && \
     ln -sf /usr/bin/ccache clang++-4.0
 
 RUN cd /opt/src && \
-    curl -o libva.zip -sSL https://github.com/intel/libva/archive/master.zip && \
-    unzip libva.zip && \
-    cd libva-master && \
+    git clone https://github.com/intel/libva && \
+    cd libva && \
     ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu && \
-    make -j4 && \
-    make install
-
-RUN cd /opt/src && \
-    curl -o gmmlib.zip -sSL https://github.com/intel/gmmlib/archive/master.zip && \
-    unzip gmmlib.zip && \
-    cd gmmlib-master && \
-    mkdir build && cd build && \
-    cmake .. && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
-    curl -o media-driver.zip -sSL https://github.com/intel/media-driver/archive/master.zip && \
-    unzip media-driver.zip && \
+    git clone https://github.com/intel/gmmlib && \
+    mkdir build_gmmlib && cd build_gmmlib && \
+    cmake ../gmmlib && \
+    make -j8 && \
+    make install
+
+RUN cd /opt/src && \
+    git clone https://github.com/intel/media-driver && \
     mkdir build_media && cd build_media && \
-    cmake ../media-driver-master && \
+    cmake ../media-driver && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
-    curl -o libva-utils.zip -sSL https://github.com/intel/libva-utils/archive/master.zip && \
-    unzip libva-utils.zip && \
-    cd libva-utils-master && \
+    git clone https://github.com/intel/libva-utils && \
+    cd libva-utils && \
     ./autogen.sh && \
     ./configure --prefix=/usr && \
-    make -j4 && \
+    make -j8 && \
     make install && \
     make check
 
 RUN cd /opt/src && \
-    curl -o MediaSDK.zip -sSL https://github.com/Intel-Media-SDK/MediaSDK/archive/master.zip && \
-    unzip MediaSDK.zip && \
-    cd MediaSDK-master && \
-    mkdir build && cd build && \
-    cmake .. && \
-    make && \
+    git clone https://github.com/Intel-Media-SDK/MediaSDK && \
+    mkdir build_msdk && cd build_msdk && \
+    cmake ../MediaSDK && \
+    make -j8 && \
     make install
 
 RUN export LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri && \
