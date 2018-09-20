@@ -46,20 +46,26 @@ RUN mkdir -p /usr/lib/ccache && \
 RUN cd /opt/src && \
     git clone https://github.com/intel/libva && \
     cd libva && \
+    git checkout 2.2.1.pre1-20180921 && \
     ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
     git clone https://github.com/intel/gmmlib && \
-    mkdir build_gmmlib && cd build_gmmlib && \
+    cd gmmlib && \
+    git checkout intel-gmmlib-18.3.pre1 && \
+    mkdir ../build_gmmlib && \
+    cd ../build_gmmlib && \
     cmake ../gmmlib && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
     git clone https://github.com/intel/media-driver && \
-    mkdir build_media && cd build_media && \
+    cd media-driver && \
+    git checkout intel-media-18.3.pre3 && \
+    mkdir ../build_media && cd ../build_media && \
     cmake ../media-driver && \
     make -j8 && \
     make install
@@ -67,6 +73,7 @@ RUN cd /opt/src && \
 RUN cd /opt/src && \
     git clone https://github.com/intel/libva-utils && \
     cd libva-utils && \
+    git checkout 2.2.1.pre1-20180921 && \
     ./autogen.sh && \
     ./configure --prefix=/usr && \
     make -j8 && \
@@ -75,11 +82,10 @@ RUN cd /opt/src && \
 
 RUN cd /opt/src && \
     git clone https://github.com/Intel-Media-SDK/MediaSDK && \
-    mkdir build_msdk && cd build_msdk && \
+    mkdir build_msdk && \
+    cd build_msdk && \
     cmake ../MediaSDK && \
     make -j8 && \
     make install
 
-RUN export LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri && \
-    export LIBVA_DRIVER_NAME=iHD
-
+ADD Tools/docker/ubuntu_export.sh /opt/src/ubuntu_export.sh
