@@ -1,6 +1,12 @@
 FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV LIBVA_VERSION 2.2.1.pre1-20180921
+ENV LIBVAUTILS_VERSION 2.2.1.pre1-20180921
+ENV MEDIADRIVER_VERSION intel-media-18.3.pre3
+ENV GMMLIB_VERSION intel-gmmlib-18.3.pre1
+ENV MSDK_VERSION intel-mediasdk-18.2.pre1
+
 
 RUN apt-get update && \
     apt-get install -y \
@@ -44,36 +50,35 @@ RUN mkdir -p /usr/lib/ccache && \
     ln -sf /usr/bin/ccache clang++-4.0
 
 RUN cd /opt/src && \
-    git clone https://github.com/intel/libva && \
-    cd libva && \
-    git checkout 2.2.1.pre1-20180921 && \
+    curl -o libva.zip -sSL https://github.com/intel/libva/archive/${LIBVA_VERSION}.zip && \
+    unzip libva.zip && \
+    cd libva-${LIBVA_VERSION} && \
     ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
-    git clone https://github.com/intel/gmmlib && \
-    cd gmmlib && \
-    git checkout intel-gmmlib-18.3.pre1 && \
-    mkdir ../build_gmmlib && \
-    cd ../build_gmmlib && \
-    cmake ../gmmlib && \
+    curl -o gmmlib.zip -sSL https://github.com/intel/gmmlib/archive/${GMMLIB_VERSION}.zip && \
+    unzip gmmlib.zip && \
+    mkdir build_gmmlib && \
+    cd build_gmmlib && \
+    cmake ../gmmlib-${GMMLIB_VERSION} && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
-    git clone https://github.com/intel/media-driver && \
-    cd media-driver && \
-    git checkout intel-media-18.3.pre3 && \
-    mkdir ../build_media && cd ../build_media && \
-    cmake ../media-driver && \
+    curl -o media-driver.zip -sSL https://github.com/intel/media-driver/archive/${MEDIADRIVER_VERSION}.zip && \
+    unzip media-driver.zip && \
+    mkdir build_media && \
+    cd build_media && \
+    cmake ../media-driver-${MEDIADRIVER_VERSION} && \
     make -j8 && \
     make install
 
 RUN cd /opt/src && \
-    git clone https://github.com/intel/libva-utils && \
-    cd libva-utils && \
-    git checkout 2.2.1.pre1-20180921 && \
+    curl -o libva-utils.zip -sSL https://github.com/intel/libva-utils/archive/${LIBVAUTILS_VERSION}.zip && \
+    unzip libva-utils.zip && \
+    cd libva-utils-${LIBVAUTILS_VERSION} && \
     ./autogen.sh && \
     ./configure --prefix=/usr && \
     make -j8 && \
@@ -81,10 +86,11 @@ RUN cd /opt/src && \
     make check
 
 RUN cd /opt/src && \
-    git clone https://github.com/Intel-Media-SDK/MediaSDK && \
+    curl -o msdk.zip -sSL https://github.com/Intel-Media-SDK/MediaSDK/archive/${MSDK_VERSION}.zip && \
+    unzip msdk.zip && \
     mkdir build_msdk && \
     cd build_msdk && \
-    cmake ../MediaSDK && \
+    cmake ../MediaSDK-${MSDK_VERSION} && \
     make -j8 && \
     make install
 
